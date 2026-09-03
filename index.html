@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Torneo Futbol</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Space Grotesk',system-ui,sans-serif}
+body{background:#0a0a0a;color:#fff;padding:16px;min-height:100vh}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #1a1a1a}
+.logo{font-weight:800;font-size:22px;letter-spacing:-0.5px}.logo span{color:#c8ff00}
+.tabs{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 18px;border-radius:30px;border:1px solid #262626;background:#161616;color:#888;font-weight:700;font-size:13px;white-space:nowrap;cursor:pointer;flex-shrink:0}
+.tab.active{background:#c8ff00;color:#000;border-color:#c8ff00}
+.card{background:#161616;border:1px solid #232323;border-radius:18px;padding:16px;margin-bottom:12px}
+.card h3{font-size:11px;color:#666;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+input,select{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radius:12px;padding:12px;color:#fff;margin-bottom:10px;font-size:14px;outline:none}
+input:focus,select:focus{border-color:#c8ff00}
+.btn{width:100%;background:#c8ff00;color:#000;border:none;border-radius:12px;padding:14px;font-weight:800;font-size:14px;margin-bottom:8px;cursor:pointer}
+.btn-dark{background:#1e1e1e;color:#fff;border:1px solid #2a2a2a}
+.btn-outline{background:transparent;color:#c8ff00;border:1px solid #c8ff00}
+.btn-small{padding:8px 12px;font-size:11px;width:auto;border-radius:8px}
+.match-row{background:#1c1c1c;border:1px solid #232323;border-radius:12px;padding:12px;margin-bottom:8px;font-size:13px}
+.table-header,.table-row{display:grid;gap:6px;padding:10px 6px;font-size:13px;align-items:center}
+.table-header{color:#555;font-size:10px;border-bottom:1px solid #222;text-transform:uppercase;letter-spacing:0.5px;font-weight:700}
+.table-row{border-bottom:1px solid #151515}
+.puntos{color:#c8ff00;font-weight:800;text-align:center;background:#c8ff0012;border-radius:6px;padding:3px 0}
+.jugador-row{display:grid;grid-template-columns:1fr 60px 60px 32px;gap:6px;margin-bottom:8px;align-items:center}
+.tag{background:#c8ff0015;color:#c8ff00;padding:3px 9px;border-radius:20px;font-size:11px;margin:2px;display:inline-block;border:1px solid #c8ff0020;font-weight:600}
+.tag-asist{background:#00d4ff12;color:#00d4ff;border-color:#00d4ff20}
+.empty{color:#444;text-align:center;padding:30px 10px;font-size:13px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="header"><div class="logo">TORNEO <span>FUTBOL</span></div><div style="width:36px;height:36px;background:#c8ff00;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#000;font-weight:800">T</div></div>
+<div class="tabs">
+<button class="tab active" onclick="switchTab('tabla',this)">Tabla</button>
+<button class="tab" onclick="switchTab('goleadores',this)">Goleadores</button>
+<button class="tab" onclick="switchTab('asistencias',this)">Asistencias</button>
+<button class="tab" onclick="switchTab('partidos',this)">Partidos</button>
+<button class="tab" onclick="switchTab('equipos',this)">Equipos</button>
+<button class="tab" onclick="switchTab('export',this)">Exportar</button>
+</div>
+<div id="v-tabla"><div id="tablaCard" style="background:#111;border-radius:18px;padding:12px;border:1px solid #1e1e1e"></div></div>
+<div id="v-goleadores" style="display:none"><div id="goleadoresCard" style="background:#111;border-radius:18px;padding:12px;border:1px solid #1e1e1e"></div></div>
+<div id="v-asistencias" style="display:none"><div id="asistenciasCard" style="background:#111;border-radius:18px;padding:12px;border:1px solid #1e1e1e"></div></div>
+<div id="v-partidos" style="display:none">
+<div class="card">
+<h3>Nuevo Partido</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><select id="localSel"></select><select id="visitSel"></select></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><input id="gLocal" type="number" placeholder="Goles Local" min="0"><input id="gVisit" type="number" placeholder="Goles Visita" min="0"></div>
+<div style="margin-top:14px;border-top:1px solid #222;padding-top:14px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-size:12px;color:#c8ff00;font-weight:700">Estadísticas del Partido</span><button class="btn btn-small btn-outline" onclick="addJugadorRow()">+ Jugador</button></div>
+<div style="display:grid;grid-template-columns:1fr 60px 60px 32px;gap:6px;margin-bottom:8px;font-size:10px;color:#555;padding:0 2px;font-weight:700;letter-spacing:0.5px"><div>JUGADOR</div><div>GOLES</div><div>ASIST</div><div></div></div>
+<div id="jugadoresInputs"></div>
+</div>
+<button class="btn" onclick="addPartido()" style="margin-top:16px">Guardar Partido</button>
+</div>
+<div class="card"><h3>Historial</h3><div id="listaPartidos"></div></div>
+</div>
+<div id="v-equipos" style="display:none">
+<div class="card"><h3>Nuevo Equipo</h3><input id="newTeam" placeholder="Nombre del equipo"><button class="btn" onclick="addEquipo()">Agregar Equipo</button></div>
+<div class="card"><h3>Equipos Registrados</h3><div id="listaEquipos"></div></div>
+</div>
+<div id="v-export" style="display:none">
+<div class="card"><h3>Exportar Resultados</h3>
+<button class="btn" onclick="exportarExcelBonito()">Exportar a Excel</button>
+<button class="btn btn-dark" onclick="exportarPDFBonito()">Exportar a PDF</button>
+</div>
+</div>
+<script>
+let equipos=JSON.parse(localStorage.getItem('equipos_pro')||'[]');
+let partidos=JSON.parse(localStorage.getItem('partidos_pro')||'[]');
+function save(){localStorage.setItem('equipos_pro',JSON.stringify(equipos));localStorage.setItem('partidos_pro',JSON.stringify(partidos));render()}
+function switchTab(v,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');['tabla','goleadores','asistencias','partidos','equipos','export'].forEach(id=>{document.getElementById('v-'+id).style.display=id==v?'block':'none'})}
+function addEquipo(){let n=document.getElementById('newTeam').value.trim();if(!n)return;if(equipos.includes(n)){alert('Equipo ya existe');return}equipos.push(n);document.getElementById('newTeam').value='';save()}
+function addJugadorRow(){let div=document.createElement('div');div.className='jugador-row';div.innerHTML=`<input placeholder="Nombre"><input type="number" placeholder="0" min="0"><input type="number" placeholder="0" min="0"><span onclick="this.parentElement.remove()" style="color:#444;cursor:pointer;text-align:center;font-size:18px">✕</span>`;document.getElementById('jugadoresInputs').appendChild(div)}
+function addPartido(){let l=document.getElementById('localSel').value,v=document.getElementById('visitSel').value,gl=parseInt(document.getElementById('gLocal').value),gv=parseInt(document.getElementById('gVisit').value);if(!l||!v){alert('Selecciona equipos');return}if(l==v){alert('No puede ser el mismo equipo');return}if(isNaN(gl)||isNaN(gv)){alert('Ingresa los goles');return}let stats=[];document.querySelectorAll('#jugadoresInputs .jugador-row').forEach(r=>{let nom=r.children[0].value.trim();let gol=parseInt(r.children[1].value)||0;let asi=parseInt(r.children[2].value)||0;if(nom&&(gol>0||asi>0))stats.push({nombre:nom,goles:gol,asistencias:asi})});partidos.push({local:l,visit:v,gL:gl,gV:gv,stats,fecha:new Date().toLocaleDateString()});document.getElementById('gLocal').value='';document.getElementById('gVisit').value='';document.getElementById('jugadoresInputs').innerHTML='';save()}
+function calc(){let t={};equipos.forEach(e=>t[e]={pj:0,gf:0,gc:0,pts:0});partidos.forEach(p=>{if(!t[p.local])t[p.local]={pj:0,gf:0,gc:0,pts:0};if(!t[p.visit])t[p.visit]={pj:0,gf:0,gc:0,pts:0};t[p.local].pj++;t[p.visit].pj++;t[p.local].gf+=p.gL;t[p.local].gc+=p.gV;t[p.visit].gf+=p.gV;t[p.visit].gc+=p.gL;if(p.gL>p.gV)t[p.local].pts+=3;else if(p.gL<p.gV)t[p.visit].pts+=3;else{t[p.local].pts+=1;t[p.visit].pts+=1}});let arr=Object.entries(t).map(([n,d])=>({nombre:n,...d,dif:d.gf-d.gc}));arr.sort((a,b)=>b.pts!=a.pts?b.pts-a.pts:b.dif-a.dif);return arr}
+function calcStats(){let map={};partidos.forEach(p=>{(p.stats||[]).forEach(s=>{let key=s.nombre.toLowerCase();if(!map[key])map[key]={nombre:s.nombre,goles:0,asistencias:0};map[key].goles+=s.goles||0;map[key].asistencias+=s.asistencias||0})});return Object.values(map)}
+function render(){
+  document.getElementById('localSel').innerHTML=equipos.length?equipos.map(e=>`<option>${e}</option>`).join(''):`<option value="" disabled selected>Agrega equipos primero</option>`;
+  document.getElementById('visitSel').innerHTML=document.getElementById('localSel').innerHTML;
+  document.getElementById('listaEquipos').innerHTML=equipos.length?equipos.map((e,i)=>`<div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #1a1a1a;align-items:center"><span style="font-weight:600">${i+1}. ${e}</span><span onclick="if(confirm('Eliminar ${e}?')){equipos.splice(${i},1);save()}" style="color:#333;cursor:pointer;font-size:18px">✕</span></div>`).join(''):`<div class="empty">No hay equipos registrados<br>Agrega tu primer equipo</div>`;
+  document.getElementById('listaPartidos').innerHTML=partidos.length?partidos.map((p,i)=>{let tags=(p.stats||[]).map(s=>{let t='';if(s.goles>0)t+=`<span class="tag">⚽ ${s.nombre} ${s.goles}</span>`;if(s.asistencias>0)t+=`<span class="tag tag-asist">🅰️ ${s.nombre} ${s.asistencias}</span>`;return t}).join('');return `<div class="match-row"><div style="display:flex;justify-content:space-between;width:100%;align-items:center"><span><b>${p.local}</b> ${p.gL} - ${p.gV} <b>${p.visit}</b></span><div style="display:flex;gap:12px;align-items:center"><small style="color:#444">${p.fecha}</small><span onclick="if(confirm('Eliminar partido?')){partidos.splice(${i},1);save()}" style="color:#333;cursor:pointer">✕</span></div></div>${tags?`<div style="margin-top:8px">${tags}</div>`:''}</div>`}).join(''):`<div class="empty">No hay partidos registrados</div>`;
+  let tabla=calc();
+  let h=tabla.length?`<div class="table-header" style="grid-template-columns:32px 1fr 36px 36px 44px 44px"><div>#</div><div>Equipo</div><div>PJ</div><div>GF</div><div>DIF</div><div>PTS</div></div>`:`<div class="empty">La tabla aparecerá cuando agregues equipos y partidos</div>`;
+  tabla.forEach((eq,i)=>{h+=`<div class="table-row" style="grid-template-columns:32px 1fr 36px 36px 44px 44px"><div style="${i<3?'color:#c8ff00;font-weight:800':''}">${i+1}</div><div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${eq.nombre}</div><div>${eq.pj}</div><div>${eq.gf}</div><div>${eq.dif>0?'+':''}${eq.dif}</div><div class="puntos">${eq.pts}</div></div>`});
+  if(tabla.length) h=`<div style="color:#c8ff00;font-size:11px;font-weight:800;margin-bottom:10px;letter-spacing:1px">${tabla.length} EQUIPOS • ${partidos.length} PARTIDOS</div>`+h;
+  document.getElementById('tablaCard').innerHTML=h;
+  let stats=calcStats();let goles=stats.filter(s=>s.goles>0).sort((a,b)=>b.goles-a.goles);
+  let hg=goles.length?`<div class="table-header" style="grid-template-columns:32px 1fr 60px"><div>#</div><div>Jugador</div><div>Goles</div></div>`:`<div class="empty">No hay goleadores registrados</div>`;
+  goles.forEach((s,i)=>{hg+=`<div class="table-row" style="grid-template-columns:32px 1fr 60px"><div>${i+1}</div><div style="font-weight:600">${s.nombre}</div><div class="puntos">${s.goles}</div></div>`});
+  document.getElementById('goleadoresCard').innerHTML=goles.length?`<div style="color:#c8ff00;font-size:11px;font-weight:800;margin-bottom:10px;letter-spacing:1px">GOLEADORES</div>`+hg:hg;
+  let asists=stats.filter(s=>s.asistencias>0).sort((a,b)=>b.asistencias-a.asistencias);
+  let ha=asists.length?`<div class="table-header" style="grid-template-columns:32px 1fr 60px"><div>#</div><div>Jugador</div><div>Asist</div></div>`:`<div class="empty">No hay asistencias registradas</div>`;
+  asists.forEach((s,i)=>{ha+=`<div class="table-row" style="grid-template-columns:32px 1fr 60px"><div>${i+1}</div><div style="font-weight:600">${s.nombre}</div><div class="puntos" style="color:#00d4ff;background:#00d4ff12">${s.asistencias}</div></div>`});
+  document.getElementById('asistenciasCard').innerHTML=asists.length?`<div style="color:#00d4ff;font-size:11px;font-weight:800;margin-bottom:10px;letter-spacing:1px">ASISTENCIAS</div>`+ha:ha;
+}
+function exportarExcelBonito(){
+  if(equipos.length===0){alert('Registra al menos un equipo para exportar');return}
+  let tabla=calc();let stats=calcStats();
+  let html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"><style>.h{background:#c8ff00;color:#000;font-weight:800}.h2{background:#00d4ff;color:#000;font-weight:800}.p{background:#111;color:#c8ff00;font-weight:800}td{padding:8px;border:1px solid #ddd;font-family:Arial}</style></head><body><h2>TORNEO FUTBOL - TABLA GENERAL</h2><p>${new Date().toLocaleDateString()} | ${equipos.length} Equipos | ${partidos.length} Partidos</p><table><tr class="h"><td>Pos</td><td>Equipo</td><td>PJ</td><td>GF</td><td>GC</td><td>DIF</td><td>PTS</td></tr>`;
+  tabla.forEach((e,i)=>{html+=`<tr><td>${i+1}</td><td>${e.nombre}</td><td>${e.pj}</td><td>${e.gf}</td><td>${e.gc}</td><td>${e.dif}</td><td class="p">${e.pts}</td></tr>`});
+  html+=`</table><br>`;
+  if(stats.filter(s=>s.goles>0).length>0){
+    html+=`<h3>GOLEADORES</h3><table><tr class="h"><td>#</td><td>Jugador</td><td>Goles</td><td>Asistencias</td></tr>`;
+    stats.sort((a,b)=>b.goles-a.goles).filter(s=>s.goles>0).forEach((s,i)=>{html+=`<tr><td>${i+1}</td><td>${s.nombre}</td><td>${s.goles}</td><td>${s.asistencias}</td></tr>`});
+    html+=`</table><br>`;
+  } else { html+=`<h3>GOLEADORES</h3><p>Sin goles registrados aún</p><br>`; }
+  if(stats.filter(s=>s.asistencias>0).length>0){
+    html+=`<h3>ASISTENCIAS</h3><table><tr class="h2"><td>#</td><td>Jugador</td><td>Asistencias</td><td>Goles</td></tr>`;
+    stats.sort((a,b)=>b.asistencias-a.asistencias).filter(s=>s.asistencias>0).forEach((s,i)=>{html+=`<tr><td>${i+1}</td><td>${s.nombre}</td><td>${s.asistencias}</td><td>${s.goles}</td></tr>`});
+    html+=`</table>`;
+  } else { html+=`<h3>ASISTENCIAS</h3><p>Sin asistencias registradas aún</p>`; }
+  if(partidos.length>0){
+    html+=`<br><h3>PARTIDOS</h3><table><tr class="h"><td>Fecha</td><td>Local</td><td>Marcador</td><td>Visitante</td><td>Detalle</td></tr>`;
+    partidos.forEach(p=>{let det=(p.stats||[]).map(s=>`${s.nombre}: ${s.goles}G ${s.asistencias}A`).join(', ');html+=`<tr><td>${p.fecha||''}</td><td>${p.local}</td><td>${p.gL}-${p.gV}</td><td>${p.visit}</td><td>${det}</td></tr>`});
+    html+=`</table>`;
+  }
+  html+=`</body></html>`;
+  let blob=new Blob([`\ufeff${html}`],{type:'application/vnd.ms-excel'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Torneo-${new Date().toISOString().slice(0,10)}.xls`;a.click()
+}
+function exportarPDFBonito(){
+  if(equipos.length===0){alert('Registra al menos un equipo para exportar');return}
+  const {jsPDF}=window.jspdf;const doc=new jsPDF();
+  doc.setFillColor(200,255,0);doc.rect(0,0,210,18,'F');doc.setFontSize(14);doc.setTextColor(0);doc.setFont('helvetica','bold');doc.text('TORNEO FUTBOL',14,12);doc.setFontSize(8);doc.text(new Date().toLocaleDateString(),180,12);
+  let tabla=calc();
+  doc.autoTable({startY:22,head:[['#','Equipo','PJ','GF','GC','DIF','PTS']],body:tabla.map((e,i)=>[i+1,e.nombre,e.pj,e.gf,e.gc,e.dif,e.pts]),theme:'striped',headStyles:{fillColor:[200,255,0],textColor:0,fontStyle:'bold'},styles:{fontSize:10}});
+  let stats=calcStats();let goles=stats.filter(s=>s.goles>0).sort((a,b)=>b.goles-a.goles);
+  if(goles.length){doc.addPage();doc.setFillColor(200,255,0);doc.rect(0,0,210,18,'F');doc.text('GOLEADORES',14,12);doc.autoTable({startY:22,head:[['#','Jugador','Goles','Asist']],body:goles.map((s,i)=>[i+1,s.nombre,s.goles,s.asistencias]),headStyles:{fillColor:[0,0,0]}})}
+  let asists=stats.filter(s=>s.asistencias>0).sort((a,b)=>b.asistencias-a.asistencias);
+  if(asists.length){doc.addPage();doc.setFillColor(0,212,255);doc.rect(0,0,210,18,'F');doc.setTextColor(0);doc.text('ASISTENCIAS',14,12);doc.autoTable({startY:22,head:[['#','Jugador','Asist','Goles']],body:asists.map((s,i)=>[i+1,s.nombre,s.asistencias,s.goles]),headStyles:{fillColor:[0,212,255],textColor:0}})}
+  doc.save(`Torneo-${new Date().toISOString().slice(0,10)}.pdf`);
+}
+render();
+</script>
+</body>
+</html>
