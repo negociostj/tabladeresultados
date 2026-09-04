@@ -33,6 +33,7 @@ input,select{width:100%;background:#0f0f0f;border:1px solid #2a2a2a;border-radiu
 .admin-only{display:none}
 body.is-admin .admin-only{display:block}
 .user-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;font-size:13px}
+.ad-box{background:#111;border:1px dashed #222;border-radius:12px;padding:8px;margin-top:12px;min-height:50px;display:flex;align-items:center;justify-content:center}
 </style>
 </head>
 <body>
@@ -40,13 +41,12 @@ body.is-admin .admin-only{display:block}
 
 <div id="authSection" class="auth-card">
 <h2>Entrar al Torneo</h2>
-<input id="emailInput" type="email" placeholder="Correo">
-<input id="passInput" type="password" placeholder="Contraseña">
+<input id="emailInput" type="email" placeholder="Correo" autocomplete="email">
+<input id="passInput" type="password" placeholder="Contraseña" autocomplete="current-password">
 <button class="btn" onclick="login()">Entrar</button>
 <button class="btn btn-dark" onclick="register()">Crear cuenta invitado</button>
 <button class="btn btn-dark" onclick="resetPass()" style="background:transparent;color:#555;border:none;font-size:12px;margin-top:8px">¿Olvidaste tu contraseña?</button>
-<div id="authError" style="font-size:12px;margin-top:10px"></div>
-<div id="setupMsg" style="font-size:11px;color:#333;margin-top:12px"></div>
+<div id="authError" style="font-size:12px;margin-top:10px;color:#ff5555"></div>
 </div>
 
 <div id="mainApp" style="display:none">
@@ -62,22 +62,13 @@ body.is-admin .admin-only{display:block}
 <button class="tab" onclick="switchTab('perfil',this)">Perfil</button>
 </div>
 
-<div id="v-tabla"><div id="tablaCard" style="background:#111;border-radius:18px;padding:12px;border:1px solid #1e1e1e"></div><script>(function(s){s.dataset.zone='11723262',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script></div>
-<div id="v-plantilla" style="display:none"><div class="card admin-only"><h3>Nuevo Jugador</h3><div class="photo-upload" onclick="document.getElementById('fotoInput').click()" id="photoPreview"><span style="font-size:24px;color:#444">+</span></div><input type="file" id="fotoInput" accept="image/*" style="display:none" onchange="previewFoto(this)"><input id="jugNombre" placeholder="Nombre"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select id="jugEquipo"></select><select id="jugPos"><option>Delantero</option><option>Mediocampista</option><option>Defensa</option><option>Portero</option></select></div><input id="jugNumero" type="number" placeholder="Número"><button class="btn" onclick="addJugador()">Agregar</button></div><div id="plantillaGrid" class="plantilla-grid"></div><script>(function(s){s.dataset.zone='11723264',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script></div>
-<div id="v-goleadores" style="display:none"><div id="goleadoresCard" style="background:#111;border-radius:18px;padding:12px;border:1px solid #1e1e1e"></div><script>(function(s){s.dataset.zone='11723266',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script><div id="tarjetasCard" style="background:#111;border-radius:18px;padding:12px;border:1px solid #1e1e1e;margin-top:12px"></div></div>
-<div id="v-partidos" style="display:none"><div class="card admin-only"><h3>Nuevo Partido</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><select id="localSel"></select><select id="visitSel"></select></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><input id="gLocal" type="number" placeholder="Goles Local"><input id="gVisit" type="number" placeholder="Goles Visita"></div><div style="margin-top:14px;border-top:1px solid #222;padding-top:14px"><div style="display:flex;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:#c8ff00;font-weight:700">Estadísticas</span><button class="btn btn-small" onclick="addStatRow()" style="background:transparent;color:#c8ff00;border:1px solid #c8ff00;width:auto">+ Jugador</button></div><div id="statsInputs"></div></div><button class="btn" onclick="addPartido()" style="margin-top:16px">Guardar</button></div><div class="card"><h3>Historial</h3><div id="listaPartidos"></div></div><script>(function(s){s.dataset.zone='11723278',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script></div>
-<div id="v-equipos" style="display:none"><div class="card admin-only"><h3>Nuevo Equipo</h3><input id="newTeam" placeholder="Nombre"><button class="btn" onclick="addEquipo()">Agregar</button></div><div class="card"><h3>Equipos</h3><div id="listaEquipos"></div></div><script>(function(s){s.dataset.zone='11723303',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script></div>
-<div id="v-usuarios" style="display:none"><div class="card"><h3>Usuarios Registrados</h3><div id="listaUsuarios"></div><div style="margin-top:14px"><h3>Agregar Admin</h3><input id="newAdminEmail" placeholder="Correo nuevo admin"><button class="btn btn-dark" onclick="addAdmin()">Hacer Admin</button></div></div></div>
-<div id="v-perfil" style="display:none">
-<div class="card"><h3>Mi Perfil</h3><div style="font-size:13px;margin-bottom:14px">Correo actual: <b id="perfilCorreo"></b><br>Rol: <b id="perfilRol" style="color:#c8ff00"></b></div>
-<h3>Cambiar mi correo</h3><input id="newEmail" type="email" placeholder="Nuevo correo"><input id="currentPassForEmail" type="password" placeholder="Contraseña actual para confirmar"><button class="btn btn-dark" onclick="cambiarMiCorreo()">Actualizar correo</button>
-<div style="height:1px;background:#222;margin:18px 0"></div>
-<h3>Cambiar mi contraseña</h3><input id="newPass" type="password" placeholder="Nueva contraseña (min 6)"><input id="newPass2" type="password" placeholder="Repetir contraseña"><button class="btn" onclick="cambiarMiPass()">Actualizar contraseña</button>
-<div style="height:1px;background:#222;margin:18px 0"></div>
-<button class="btn btn-dark" onclick="enviarResetMiCorreo()">Enviarme correo de recuperación</button>
-<div id="perfilMsg" style="font-size:12px;margin-top:12px"></div>
-</div>
-</div>
+<div id="v-tabla"><div id="tablaCard" style="background:#111;border-radius:18px;padding:12px;border:1px solid #1e1e1e"></div><div class="ad-box" id="ad-tabla"></div></div>
+<div id="v-plantilla" style="display:none"><div class="card admin-only"><h3>Nuevo Jugador</h3><div class="photo-upload" onclick="document.getElementById('fotoInput').click()" id="photoPreview"><span style="font-size:24px;color:#444">+</span></div><input type="file" id="fotoInput" accept="image/*" style="display:none" onchange="previewFoto(this)"><input id="jugNombre" placeholder="Nombre"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select id="jugEquipo"></select><select id="jugPos"><option>Delantero</option><option>Mediocampista</option><option>Defensa</option><option>Portero</option></select></div><input id="jugNumero" type="number" placeholder="Número"><button class="btn" onclick="addJugador()">Agregar</button></div><div id="plantillaGrid" class="plantilla-grid"></div><div class="ad-box" id="ad-plantilla"></div></div>
+<div id="v-goleadores" style="display:none"><div id="goleadoresCard" style="background:#111;border-radius:18px;padding:12px;border:1px solid #1e1e1e"></div><div class="ad-box" id="ad-goleadores"></div><div id="tarjetasCard" style="background:#111;border-radius:18px;padding:12px;border:1px solid #1e1e1e;margin-top:12px"></div></div>
+<div id="v-partidos" style="display:none"><div class="card admin-only"><h3>Nuevo Partido</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><select id="localSel"></select><select id="visitSel"></select></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><input id="gLocal" type="number" placeholder="Goles Local"><input id="gVisit" type="number" placeholder="Goles Visita"></div><div style="margin-top:14px;border-top:1px solid #222;padding-top:14px"><div style="display:flex;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:#c8ff00;font-weight:700">Estadísticas</span><button class="btn btn-small" onclick="addStatRow()" style="background:transparent;color:#c8ff00;border:1px solid #c8ff00;width:auto">+ Jugador</button></div><div id="statsInputs"></div></div><button class="btn" onclick="addPartido()" style="margin-top:16px">Guardar</button></div><div class="card"><h3>Historial</h3><div id="listaPartidos"></div></div><div class="ad-box" id="ad-partidos"></div></div>
+<div id="v-equipos" style="display:none"><div class="card admin-only"><h3>Nuevo Equipo</h3><input id="newTeam" placeholder="Nombre"><button class="btn" onclick="addEquipo()">Agregar</button></div><div class="card"><h3>Equipos</h3><div id="listaEquipos"></div></div><div class="ad-box" id="ad-equipos"></div></div>
+<div id="v-usuarios" style="display:none"><div class="card"><h3>Usuarios</h3><div id="listaUsuarios"></div><div style="margin-top:14px"><h3>Agregar Admin</h3><input id="newAdminEmail" placeholder="Correo nuevo admin"><button class="btn btn-dark" onclick="addAdmin()">Hacer Admin</button></div></div></div>
+<div id="v-perfil" style="display:none"><div class="card"><h3>Mi Perfil</h3><div style="font-size:13px;margin-bottom:14px">Correo: <b id="perfilCorreo"></b><br>Rol: <b id="perfilRol" style="color:#c8ff00"></b></div><h3>Cambiar correo</h3><input id="newEmail" type="email" placeholder="Nuevo correo"><input id="currentPassForEmail" type="password" placeholder="Contraseña actual"><button class="btn btn-dark" onclick="cambiarMiCorreo()">Actualizar correo</button><div style="height:1px;background:#222;margin:18px 0"></div><h3>Cambiar contraseña</h3><input id="newPass" type="password" placeholder="Nueva contraseña"><input id="newPass2" type="password" placeholder="Repetir"><button class="btn" onclick="cambiarMiPass()">Actualizar contraseña</button><div style="height:1px;background:#222;margin:18px 0"></div><button class="btn btn-dark" onclick="enviarResetMiCorreo()">Enviar correo recuperación</button><div id="perfilMsg" style="font-size:12px;margin-top:12px"></div></div></div>
 </div>
 
 <script type="module">
@@ -94,10 +85,11 @@ const firebaseConfig = {
   appId: "1:753302242190:web:8be84d32f973e0a76d5adf",
   measurementId: "G-JG6EVGM57P"
 };
-// CONFIG ADMIN POR DEFECTO - YA VIENE CREADA
-const DEFAULT_ADMIN_EMAIL = "luisangelesquerra@gmail.com";
-const DEFAULT_ADMIN_PASS = "Angel.1357";
-let ADMIN_EMAILS = [DEFAULT_ADMIN_EMAIL];
+let ADMIN_EMAILS = ["luisangelesquerra@gmail.com"];
+
+const AD_ZONES = { tabla: '11723262', plantilla: '11723264', goleadores: '11723266', partidos: '11723278', equipos: '11723303' };
+let loadedAds = {};
+function loadAdForTab(tab){ if(!AD_ZONES[tab] || loadedAds[tab]) return; let container = document.getElementById('ad-'+tab); if(!container) return; container.innerHTML=''; let s=document.createElement('script'); s.dataset.zone=AD_ZONES[tab]; s.src='https://nap5k.com/tag.min.js'; container.appendChild(s); loadedAds[tab]=true; }
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -107,29 +99,9 @@ const usuariosCol = collection(db, "usuarios");
 
 let equipos=[], partidos=[], plantilla=[], tempFoto='', isAdmin=false, currentUser=null;
 
-// CREAR ADMIN POR DEFECTO AUTOMATICAMENTE
-async function ensureAdminExists(){
-  const msgEl = document.getElementById('setupMsg');
-  try{
-    msgEl.textContent = "Verificando cuenta admin...";
-    await createUserWithEmailAndPassword(auth, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASS);
-    msgEl.style.color = "#c8ff00";
-    msgEl.textContent = "✅ Cuenta admin creada: " + DEFAULT_ADMIN_EMAIL;
-    await signOut(auth);
-  }catch(e){
-    if(e.code === 'auth/email-already-in-use'){
-      msgEl.style.color = "#666";
-      msgEl.textContent = "Cuenta admin ya existe, puedes entrar";
-    } else {
-      msgEl.textContent = "";
-    }
-  }
-}
-ensureAdminExists();
-
 onAuthStateChanged(auth, async (user)=>{
   currentUser=user;
-  if(user){
+  if(user && user.email){
     try{ await setDoc(doc(db,"usuarios",user.uid), {email:user.email, isAdmin: ADMIN_EMAILS.includes(user.email.toLowerCase().trim()), creado: new Date().toISOString()}, {merge:true}); }catch(e){}
     document.getElementById('authSection').style.display='none';
     document.getElementById('mainApp').style.display='block';
@@ -138,11 +110,12 @@ onAuthStateChanged(auth, async (user)=>{
     document.body.classList.toggle('is-admin', isAdmin);
     document.getElementById('welcomeMsg').textContent = `${user.email} ${isAdmin?'(ADMIN)':''}`;
     document.getElementById('perfilCorreo').textContent = user.email;
-    document.getElementById('perfilRol').textContent = isAdmin?'ADMINISTRADOR':'INVITADO';
+    document.getElementById('perfilRol').textContent = isAdmin?'ADMIN':'INVITADO';
     document.getElementById('userBadge').style.background = isAdmin ? '#c8ff00' : '#1a1a1a';
     document.getElementById('userBadge').style.color = isAdmin ? '#000' : '#888';
     onSnapshot(torneoDoc, (snap)=>{ if(snap.exists()){ let d=snap.data(); equipos=d.equipos||[]; partidos=d.partidos||[]; plantilla=d.plantilla||[]; if(d.adminEmails && d.adminEmails.length) ADMIN_EMAILS = d.adminEmails; render(); } else setDoc(torneoDoc, {equipos:[],partidos:[],plantilla:[], adminEmails: ADMIN_EMAILS}); });
     if(isAdmin) loadUsuarios();
+    loadAdForTab('tabla');
   } else {
     document.getElementById('authSection').style.display='block';
     document.getElementById('mainApp').style.display='none';
@@ -150,51 +123,44 @@ onAuthStateChanged(auth, async (user)=>{
   }
 });
 
-async function loadUsuarios(){ try{ let snap=await getDocs(usuariosCol); let html=''; snap.forEach(d=>{ let u=d.data(); html+=`<div class="user-row"><div><b>${u.email}</b><br><span style="font-size:11px;color:${u.isAdmin?'#c8ff00':'#666'}">${u.isAdmin?'ADMIN':'INVITADO'}</span></div><div style="display:flex;gap:6px"><button class="btn btn-small btn-dark" onclick="resetPassEmail('${u.email}')">Reset</button><button class="btn btn-small" onclick="toggleAdmin('${d.id}','${u.email}',${!u.isAdmin})" style="background:${u.isAdmin?'#333':'#c8ff00'};color:${u.isAdmin?'#fff':'#000'}">${u.isAdmin?'Quitar':'Admin'}</button></div></div>`; }); document.getElementById('listaUsuarios').innerHTML=html||'No hay usuarios'; }catch(e){ document.getElementById('listaUsuarios').innerHTML='Error: '+e.message; } }
+async function loadUsuarios(){ try{ let snap=await getDocs(usuariosCol); let html=''; snap.forEach(d=>{ let u=d.data(); html+=`<div class="user-row"><div><b>${u.email}</b><br><span style="font-size:11px;color:${u.isAdmin?'#c8ff00':'#666'}">${u.isAdmin?'ADMIN':'INVITADO'}</span></div><div style="display:flex;gap:6px"><button class="btn btn-small btn-dark" onclick="resetPassEmail('${u.email}')">Reset</button><button class="btn btn-small" onclick="toggleAdmin('${d.id}','${u.email}',${!u.isAdmin})" style="background:${u.isAdmin?'#333':'#c8ff00'};color:${u.isAdmin?'#fff':'#000'}">${u.isAdmin?'Quitar':'Admin'}</button></div></div>`; }); document.getElementById('listaUsuarios').innerHTML=html||'No hay usuarios'; }catch(e){} }
 
-window.login = async function(){ let email=document.getElementById('emailInput').value.trim(); let pass=document.getElementById('passInput').value; let err=document.getElementById('authError'); try{ await signInWithEmailAndPassword(auth,email,pass); err.textContent=''; } catch(e){ err.style.color='#ff5555'; err.textContent = 'Correo o contraseña incorrectos'; } }
-window.register = async function(){ let email=document.getElementById('emailInput').value.trim(); let pass=document.getElementById('passInput').value; let err=document.getElementById('authError'); if(pass.length<6){ err.textContent='Contraseña mínimo 6'; return; } try{ await createUserWithEmailAndPassword(auth,email,pass); } catch(e){ err.style.color='#ff5555'; err.textContent=e.code==='auth/email-already-in-use'?'Ese correo ya existe, dale a Entrar':'Error: '+e.message; } }
-window.resetPass = async function(){ let email=document.getElementById('emailInput').value.trim(); if(!email){ document.getElementById('authError').textContent='Escribe tu correo'; return; } try{ await sendPasswordResetEmail(auth,email); document.getElementById('authError').style.color='#c8ff00'; document.getElementById('authError').textContent='Correo enviado a '+email+' revisa spam'; }catch(e){ document.getElementById('authError').textContent=e.message; } }
-window.logout = function(){ signOut(auth); }
-window.switchTab = function(v,el){ if(v==='perfil'){ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); } else { document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); if(el) el.classList.add('active'); } ['tabla','plantilla','goleadores','partidos','equipos','usuarios','perfil'].forEach(id=>{ let e=document.getElementById('v-'+id); if(e) e.style.display=id==v?'block':'none'; }); }
+// LOGIN SEGURO - BLOQUEA VACIO
+window.login = async function(){
+  let email=document.getElementById('emailInput').value.trim();
+  let pass=document.getElementById('passInput').value;
+  let err=document.getElementById('authError');
+  if(!email || !pass){ err.textContent='❌ Escribe correo y contraseña'; return; }
+  if(pass.length<6){ err.textContent='❌ Contraseña mínimo 6 caracteres'; return; }
+  try{ await signInWithEmailAndPassword(auth,email,pass); err.textContent=''; }
+  catch(e){ err.textContent='❌ Correo o contraseña incorrectos'; }
+}
+window.register = async function(){
+  let email=document.getElementById('emailInput').value.trim();
+  let pass=document.getElementById('passInput').value;
+  let err=document.getElementById('authError');
+  if(!email || !pass){ err.textContent='❌ Escribe correo y contraseña'; return; }
+  if(pass.length<6){ err.textContent='❌ Contraseña mínimo 6'; return; }
+  if(email.toLowerCase()===ADMIN_EMAILS[0]){ err.textContent='❌ Ese correo es del admin, usa Entrar'; return; }
+  try{ await createUserWithEmailAndPassword(auth,email,pass); err.textContent=''; }
+  catch(e){ err.textContent=e.code==='auth/email-already-in-use'?'❌ Ya existe, dale a Entrar':'❌ '+e.message; }
+}
+window.resetPass = async function(){ let email=document.getElementById('emailInput').value.trim(); let err=document.getElementById('authError'); if(!email){ err.textContent='❌ Escribe tu correo primero'; return; } try{ await sendPasswordResetEmail(auth,email); err.style.color='#c8ff00'; err.textContent='✅ Correo enviado a '+email; }catch(e){ err.textContent='❌ '+e.message; } }
+window.logout = function(){ signOut(auth); loadedAds={}; }
+window.switchTab = function(v,el){ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); if(el) el.classList.add('active'); ['tabla','plantilla','goleadores','partidos','equipos','usuarios','perfil'].forEach(id=>{ let e=document.getElementById('v-'+id); if(e) e.style.display=id==v?'block':'none'; }); loadAdForTab(v); }
 window.openPerfil = function(){ switchTab('perfil',null); }
 window.previewFoto = function(input){if(input.files&&input.files[0]){let r=new FileReader();r.onload=function(e){tempFoto=e.target.result;document.getElementById('photoPreview').innerHTML=`<img src="${tempFoto}">`};r.readAsDataURL(input.files[0])}}
-async function saveCloud(){ await setDoc(torneoDoc, {equipos,partidos,plantilla, adminEmails: ADMIN_EMAILS}, {merge:true}); }
+async function saveCloud(){ if(!isAdmin){ alert('Solo admin puede editar'); return; } await setDoc(torneoDoc, {equipos,partidos,plantilla, adminEmails: ADMIN_EMAILS}, {merge:true}); }
 window.addEquipo = function(){if(!isAdmin)return alert('Solo admin');let n=document.getElementById('newTeam').value.trim();if(!n)return;equipos.push(n);document.getElementById('newTeam').value='';saveCloud();}
 window.addJugador = function(){if(!isAdmin)return;let nombre=document.getElementById('jugNombre').value.trim();let equipo=document.getElementById('jugEquipo').value;if(!nombre||!equipo)return;plantilla.push({id:Date.now(),nombre,equipo,pos:document.getElementById('jugPos').value,numero:document.getElementById('jugNumero').value,foto:tempFoto||''});document.getElementById('jugNombre').value='';tempFoto='';document.getElementById('photoPreview').innerHTML='<span style="font-size:24px;color:#444">+</span>';saveCloud();}
 window.addStatRow = function(){if(!isAdmin)return;if(plantilla.length===0){alert('Agrega jugadores');return}let div=document.createElement('div');div.className='jugador-row';let opts=plantilla.map(j=>`<option value="${j.id}">${j.nombre} (${j.equipo})</option>`).join('');div.innerHTML=`<select><option value="">Jugador</option>${opts}</select><input type="number" placeholder="G"><input type="number" placeholder="A"><input type="number" placeholder="🟨"><input type="number" placeholder="🟥"><span onclick="this.parentElement.remove()" style="color:#444;cursor:pointer;text-align:center">✕</span>`;document.getElementById('statsInputs').appendChild(div);}
 window.addPartido = function(){if(!isAdmin)return;let l=document.getElementById('localSel').value,v=document.getElementById('visitSel').value,gl=parseInt(document.getElementById('gLocal').value),gv=parseInt(document.getElementById('gVisit').value);if(!l||!v||isNaN(gl)||isNaN(gv))return;let stats=[];document.querySelectorAll('#statsInputs .jugador-row').forEach(r=>{let id=r.children[0].value;let gol=parseInt(r.children[1].value)||0;let asi=parseInt(r.children[2].value)||0;let ama=parseInt(r.children[3].value)||0;let roja=parseInt(r.children[4].value)||0;if(id&&(gol||asi||ama||roja)){let jug=plantilla.find(j=>j.id==id);stats.push({id:parseInt(id),nombre:jug.nombre,equipo:jug.equipo,goles:gol,asistencias:asi,amarillas:ama,rojas:roja})}});partidos.push({local:l,visit:v,gL:gl,gV:gv,stats,fecha:new Date().toLocaleDateString()});document.getElementById('statsInputs').innerHTML='';saveCloud();}
 window.resetPassEmail = async function(email){ try{ await sendPasswordResetEmail(auth,email); alert('Correo enviado a '+email); }catch(e){ alert(e.message); } }
 window.toggleAdmin = async function(uid,email,makeAdmin){ try{ await updateDoc(doc(db,"usuarios",uid), {isAdmin: makeAdmin}); if(makeAdmin){ if(!ADMIN_EMAILS.includes(email.toLowerCase())) ADMIN_EMAILS.push(email.toLowerCase()); } else { ADMIN_EMAILS = ADMIN_EMAILS.filter(e=>e.toLowerCase()!==email.toLowerCase()); } await setDoc(torneoDoc, {adminEmails: ADMIN_EMAILS}, {merge:true}); alert(email + (makeAdmin ? ' ahora es ADMIN' : ' ya no es admin')); loadUsuarios(); }catch(e){ alert(e.message); } }
-window.addAdmin = async function(){ let email=document.getElementById('newAdminEmail').value.trim().toLowerCase(); if(!email) return; if(!ADMIN_EMAILS.includes(email)){ ADMIN_EMAILS.push(email); await setDoc(torneoDoc, {adminEmails: ADMIN_EMAILS}, {merge:true}); alert(email+' agregado como admin'); document.getElementById('newAdminEmail').value=''; } }
-
-// CAMBIAR CORREO Y CONTRASEÑA DESDE PERFIL
-window.cambiarMiCorreo = async function(){
-  let newEmail = document.getElementById('newEmail').value.trim();
-  let currPass = document.getElementById('currentPassForEmail').value;
-  let msg = document.getElementById('perfilMsg');
-  if(!newEmail){ msg.textContent='Escribe nuevo correo'; return; }
-  if(!currPass){ msg.textContent='Escribe tu contraseña actual'; return; }
-  try{
-    let cred = EmailAuthProvider.credential(currentUser.email, currPass);
-    await reauthenticateWithCredential(currentUser, cred);
-    await updateEmail(currentUser, newEmail);
-    await setDoc(doc(db,"usuarios",currentUser.uid), {email:newEmail}, {merge:true});
-    // si era admin, actualizar lista
-    if(isAdmin){
-      ADMIN_EMAILS = ADMIN_EMAILS.map(e=> e===currentUser.email.toLowerCase() ? newEmail.toLowerCase() : e);
-      await setDoc(torneoDoc, {adminEmails: ADMIN_EMAILS}, {merge:true});
-    }
-    msg.style.color='#c8ff00';
-    msg.textContent='Correo cambiado a '+newEmail+' - Vuelve a iniciar sesión';
-    document.getElementById('perfilCorreo').textContent = newEmail;
-  }catch(e){
-    msg.style.color='#ff5555';
-    msg.textContent = e.code==='auth/wrong-password' ? 'Contraseña actual incorrecta' : e.message;
-  }
-}
-window.cambiarMiPass = async function(){ let np=document.getElementById('newPass').value, np2=document.getElementById('newPass2').value, msg=document.getElementById('perfilMsg'); if(np.length<6){ msg.style.color='#ff5555'; msg.textContent='Mínimo 6'; return; } if(np!==np2){ msg.style.color='#ff5555'; msg.textContent='No coinciden'; return; } try{ await updatePassword(currentUser, np); msg.style.color='#c8ff00'; msg.textContent='✅ Contraseña actualizada correctamente'; document.getElementById('newPass').value=''; document.getElementById('newPass2').value=''; }catch(e){ if(e.code==='auth/requires-recent-login'){ msg.style.color='#ff5555'; msg.textContent='Por seguridad, cierra sesión y vuelve a entrar, luego cambia la contraseña'; } else msg.textContent=e.message; } }
-window.enviarResetMiCorreo = async function(){ if(!currentUser) return; try{ await sendPasswordResetEmail(auth, currentUser.email); document.getElementById('perfilMsg').style.color='#c8ff00'; document.getElementById('perfilMsg').textContent='Correo enviado a '+currentUser.email; }catch(e){ document.getElementById('perfilMsg').textContent=e.message; } }
+window.addAdmin = async function(){ let email=document.getElementById('newAdminEmail').value.trim().toLowerCase(); if(!email) return; if(!ADMIN_EMAILS.includes(email)){ ADMIN_EMAILS.push(email); await setDoc(torneoDoc, {adminEmails: ADMIN_EMAILS}, {merge:true}); alert(email+' agregado'); document.getElementById('newAdminEmail').value=''; } }
+window.cambiarMiCorreo = async function(){ let newEmail = document.getElementById('newEmail').value.trim(); let currPass = document.getElementById('currentPassForEmail').value; let msg = document.getElementById('perfilMsg'); if(!newEmail || !currPass){ msg.textContent='Completa ambos campos'; return; } try{ let cred = EmailAuthProvider.credential(currentUser.email, currPass); await reauthenticateWithCredential(currentUser, cred); await updateEmail(currentUser, newEmail); await setDoc(doc(db,"usuarios",currentUser.uid), {email:newEmail}, {merge:true}); if(isAdmin){ ADMIN_EMAILS = ADMIN_EMAILS.map(e=> e===currentUser.email.toLowerCase() ? newEmail.toLowerCase() : e); await setDoc(torneoDoc, {adminEmails: ADMIN_EMAILS}, {merge:true}); } msg.style.color='#c8ff00'; msg.textContent='Correo cambiado'; document.getElementById('perfilCorreo').textContent = newEmail; }catch(e){ msg.style.color='#ff5555'; msg.textContent = e.code==='auth/wrong-password' ? 'Contraseña incorrecta' : e.message; } }
+window.cambiarMiPass = async function(){ let np=document.getElementById('newPass').value, np2=document.getElementById('newPass2').value, msg=document.getElementById('perfilMsg'); if(np.length<6){ msg.textContent='Mínimo 6'; return; } if(np!==np2){ msg.textContent='No coinciden'; return; } try{ await updatePassword(currentUser, np); msg.style.color='#c8ff00'; msg.textContent='✅ Contraseña actualizada'; document.getElementById('newPass').value=''; document.getElementById('newPass2').value=''; }catch(e){ msg.textContent=e.code==='auth/requires-recent-login' ? 'Cierra sesión y vuelve a entrar' : e.message; } }
+window.enviarResetMiCorreo = async function(){ if(!currentUser) return; try{ await sendPasswordResetEmail(auth, currentUser.email); document.getElementById('perfilMsg').style.color='#c8ff00'; document.getElementById('perfilMsg').textContent='Correo enviado'; }catch(e){ document.getElementById('perfilMsg').textContent=e.message; } }
 
 function calc(){let t={};equipos.forEach(e=>t[e]={pj:0,gf:0,gc:0,pts:0});partidos.forEach(p=>{if(!t[p.local])t[p.local]={pj:0,gf:0,gc:0,pts:0};if(!t[p.visit])t[p.visit]={pj:0,gf:0,gc:0,pts:0};t[p.local].pj++;t[p.visit].pj++;t[p.local].gf+=p.gL;t[p.local].gc+=p.gV;t[p.visit].gf+=p.gV;t[p.visit].gc+=p.gL;if(p.gL>p.gV)t[p.local].pts+=3;else if(p.gL<p.gV)t[p.visit].pts+=3;else{t[p.local].pts+=1;t[p.visit].pts+=1}});let arr=Object.entries(t).map(([n,d])=>({nombre:n,...d,dif:d.gf-d.gc}));arr.sort((a,b)=>b.pts-a.pts||b.dif-a.dif);return arr}
 function calcStats(){let map={};plantilla.forEach(j=>{map[j.id]={...j,goles:0,asistencias:0,amarillas:0,rojas:0}});partidos.forEach(p=>{(p.stats||[]).forEach(s=>{if(!map[s.id])map[s.id]={...s,foto:'',goles:0,asistencias:0,amarillas:0,rojas:0};map[s.id].goles+=s.goles||0;map[s.id].asistencias+=s.asistencias||0;map[s.id].amarillas+=s.amarillas||0;map[s.id].rojas+=s.rojas||0})});return Object.values(map)}
